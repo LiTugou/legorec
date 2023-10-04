@@ -2,7 +2,7 @@
 import tensorflow as tf
 from tensorflow import tensordot, expand_dims
 from tensorflow.keras import layers, Model, initializers, regularizers, activations, constraints, Input
-
+from layers.base import MLP
 
 from tensorflow.keras.backend import expand_dims,repeat_elements,sum
 
