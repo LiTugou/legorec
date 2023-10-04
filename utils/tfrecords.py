@@ -77,3 +77,39 @@ def pl2tf(df,folder,chunk_size=100000):
                 record_bytes=tf_example.SerializeToString()
                 file_writer.write(record_bytes)
         idx+=1
+
+
+from multiprocessing import Pool, cpu_count
+import time
+
+def _csv2tf_mtl_wraper(src,path,expr=[]):
+    df=pl.read_csv(src)
+    if expr:
+        df=df.with_columns(expr)
+    df=df.with_columns(
+        pl.col(pl.Utf8).cast(pl.Binary),
+        pl.col(pl.List(pl.Utf8))
+        .explode()
+        .cast(pl.Binary)
+        .reshape((df.shape[0],-1))
+    )
+    translist=[tf_tab[dtype] for dtype in df.dtypes]
+    columns=df.columns
+    with tf.io.TFRecordWriter(path) as file_writer:
+        for row in df.iter_rows():
+            feature={}
+            for i in range(len(row)):
+                feature[columns[i]]=translist[i](row[i])
+            tf_example = tf.train.Example(features=tf.train.Features(feature=feature))
+            record_bytes=tf_example.SerializeToString()
+            file_writer.write(record_bytes)
+
+
+def csv2tf_mtl(pair,expr=[]):
+    # pair=[(file,dst),()]
+    pool = Pool(processes=(cpu_count() - 1))
+    for i in range(len(pair)):
+        info=pair[i]
+        pool.apply_async(_csv2tf_mtl_wraper, args=(info[0], info[1],expr))
+    pool.close()
+    pool.join()
