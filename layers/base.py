@@ -4,15 +4,14 @@ from tensorflow import tensordot, expand_dims
 from tensorflow.keras import layers, Model, initializers, regularizers, activations, constraints, Input, Sequential
 import tensorflow.keras.backend as K
 
-
 class MLP(layers.Layer):
-    def __init__(self,out_dim,hidden_units):
+    def __init__(self,out_dim,hidden_units,activation=None):
         super(MLP,self).__init__()
         dense_layers=[]
         for unit in hidden_units:
             dense=layers.Dense(unit,activation=tf.nn.relu)
             dense_layers.append(dense)
-        self.outlayer=layers.Dense(out_dim)
+        self.outlayer=layers.Dense(out_dim,activation=activation)
         self.dense_layers=dense_layers
         
     def call(self,inputs):

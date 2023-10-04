@@ -24,7 +24,7 @@ def _batched_parse(serialized_examples,schema):
     return features, {'ctr': ctr, 'cvr': cvr}
 
 
-def loadtf(filenames,schema,batch_size=64):
+def loadtf(filenames,schema,batch_size=64,num_epochs=1):
     #filenames=glob.glob(pattern)
     seqlen=10
     for key in schema.keys():
@@ -36,6 +36,8 @@ def loadtf(filenames,schema,batch_size=64):
         buffer_size=None,
         num_parallel_reads=tf.data.AUTOTUNE,
     )
+    ds=ds.repeat(num_epochs)
+    ds=ds.shuffle(buffer_size= 50 * batch_size)
     ds=ds.batch(batch_size)
     ds=ds.map(lambda x:_batched_parse(x,schema),num_parallel_calls=tf.data.AUTOTUNE)
     ds=ds.prefetch(buffer_size=tf.data.AUTOTUNE)
@@ -52,7 +54,7 @@ class CSVDataSet():
         self.buffer_size=buffer_size
         self.num_parallel_calls=num_parallel_calls
 
-    def getds(self):
+    def getds(self,batch_size=1024,num_epochs=1):
         dataset = self.filename_dataset.interleave(
             lambda filename: tf.data.TextLineDataset(filename).skip(1).shuffle(self.buffer_size),
             #并行数为5，默认一次从并行数中取出一条数据
@@ -79,7 +81,9 @@ def input_fn(file_list,column_names,record_defaults,drop_columns,num_epochs=1,ba
     dsiter=CSVDataSet(file_list,record_defaults,column_names,drop_columns)
     dataset=dsiter.getds()
     dataset = dataset.repeat(num_epochs)
+    dataset=dataset.shuffle(buffer_size= 50 * batch_size)
     dataset = dataset.batch(batch_size)
+    dataset=dataset.prefetch(buffer_size=tf.data.AUTOTUNE)
     return dataset
 
 

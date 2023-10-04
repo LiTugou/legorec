@@ -9,14 +9,28 @@ from tensorflow.keras.backend import expand_dims,repeat_elements,sum
 class PLELayer(layers.Layer):
 
     def __init__(self,
+                 units,
                  num_per_experts,
                  num_experts_share,
-                 expert_units,
                  num_tasks,
-                 gate_units,
                  level_number,
+                 use_expert_bias=True,
+                 use_gate_bias=True,
                  expert_activation='relu',
                  gate_activation='softmax',
+                 expert_bias_initializer='zeros',
+                 gate_bias_initializer='zeros',
+                 expert_bias_regularizer=None,
+                 gate_bias_regularizer=None,
+                 expert_bias_constraint=None,
+                 gate_bias_constraint=None,
+                 expert_kernel_initializer='VarianceScaling',
+                 gate_kernel_initializer='VarianceScaling',
+                 expert_kernel_regularizer=None,
+                 gate_kernel_regularizer=None,
+                 expert_kernel_constraint=None,
+                 gate_kernel_constraint=None,
+                 activity_regularizer=None,
                  **kwargs):
         """
          Method for instantiating MMoE layer.
@@ -47,11 +61,10 @@ class PLELayer(layers.Layer):
         super(PLELayer, self).__init__(**kwargs)
 
         # Hidden nodes parameter
-        self.expert_units = expert_units
+        self.units = units
         self.num_per_experts = num_per_experts
         self.num_experts_share = num_experts_share
         self.num_tasks = num_tasks
-        self.gate_units=gate_units
         self.level_number = level_number
 
         # ple layer
@@ -59,12 +72,12 @@ class PLELayer(layers.Layer):
         for i in range(0, self.level_number):
             if i == self.level_number - 1:
                 ple_layer = SinglePLELayer(
-                    num_per_experts, num_experts_share,expert_units, num_tasks,gate_units, True)
+                    units, num_per_experts, num_experts_share, num_tasks, True)
                 self.ple_layers.append(ple_layer)
                 break
             else:
                 ple_layer = SinglePLELayer(
-                    num_per_experts, num_experts_share,expert_units, num_tasks,gate_units, False)
+                    units, num_per_experts, num_experts_share, num_tasks, False)
                 self.ple_layers.append(ple_layer)
     
     def call(self, inputs):
@@ -86,14 +99,28 @@ class SinglePLELayer(layers.Layer):
     """
 
     def __init__(self,
+                 units,
                  num_per_experts,
                  num_experts_share,
-                 expert_units,
                  num_tasks,
-                 gate_units,
                  if_last,
+                 use_expert_bias=True,
+                 use_gate_bias=True,
                  expert_activation='relu',
                  gate_activation='softmax',
+                 expert_bias_initializer='zeros',
+                 gate_bias_initializer='zeros',
+                 expert_bias_regularizer=None,
+                 gate_bias_regularizer=None,
+                 expert_bias_constraint=None,
+                 gate_bias_constraint=None,
+                 expert_kernel_initializer='VarianceScaling',
+                 gate_kernel_initializer='VarianceScaling',
+                 expert_kernel_regularizer=None,
+                 gate_kernel_regularizer=None,
+                 expert_kernel_constraint=None,
+                 gate_kernel_constraint=None,
+                 activity_regularizer=None,
                  **kwargs):
         """
          Method for instantiating MMoE layer.
@@ -124,19 +151,42 @@ class SinglePLELayer(layers.Layer):
         super(SinglePLELayer, self).__init__(**kwargs)
 
         # Hidden nodes parameter
-        self.expert_units = expert_units
-        self.gate_units=gate_units
+        self.units = units
         self.num_per_experts = num_per_experts
         self.num_experts_share = num_experts_share
         self.num_tasks = num_tasks
         self.if_last = if_last
+
+        # Weight parameter
+        self.expert_kernels = None
+        self.gate_kernels = None
+        self.expert_kernel_initializer = initializers.get(expert_kernel_initializer)
+        self.gate_kernel_initializer = initializers.get(gate_kernel_initializer)
+        self.expert_kernel_regularizer = regularizers.get(expert_kernel_regularizer)
+        self.gate_kernel_regularizer = regularizers.get(gate_kernel_regularizer)
+        self.expert_kernel_constraint = constraints.get(expert_kernel_constraint)
+        self.gate_kernel_constraint = constraints.get(gate_kernel_constraint)
 
         # Activation parameter
         #self.expert_activation = activations.get(expert_activation)
         self.expert_activation = expert_activation
         self.gate_activation = gate_activation
 
+        # Bias parameter
+        self.expert_bias = None
+        self.gate_bias = None
+        self.use_expert_bias = use_expert_bias
+        self.use_gate_bias = use_gate_bias
+        self.expert_bias_initializer = initializers.get(expert_bias_initializer)
+        self.gate_bias_initializer = initializers.get(gate_bias_initializer)
+        self.expert_bias_regularizer = regularizers.get(expert_bias_regularizer)
+        self.gate_bias_regularizer = regularizers.get(gate_bias_regularizer)
+        self.expert_bias_constraint = constraints.get(expert_bias_constraint)
+        self.gate_bias_constraint = constraints.get(gate_bias_constraint)
+
         # Activity parameter
+        self.activity_regularizer = regularizers.get(activity_regularizer)
+
         self.expert_layers = []
         self.expert_share_layers = []
         self.gate_layers = []
@@ -144,16 +194,46 @@ class SinglePLELayer(layers.Layer):
         # task-specific expert part
         for i in range(0, self.num_tasks):
             for j in range(self.num_per_experts):
-                self.expert_layers.append(MLP(self.expert_units[-1],self.expert_units[:-1],activation=self.expert_activation))
+                self.expert_layers.append(layers.Dense(self.units, activation=self.expert_activation,
+                                                   use_bias=self.use_expert_bias,
+                                                   kernel_initializer=self.expert_kernel_initializer,
+                                                   bias_initializer=self.expert_bias_initializer,
+                                                   kernel_regularizer=self.expert_kernel_regularizer,
+                                                   bias_regularizer=self.expert_bias_regularizer,
+                                                   activity_regularizer=None,
+                                                   kernel_constraint=self.expert_kernel_constraint,
+                                                   bias_constraint=self.expert_bias_constraint))
         # task-specific expert part
         for i in range(self.num_experts_share):
-            self.expert_share_layers.append(MLP(self.expert_units[-1],self.expert_units[:-1],activation=self.expert_activation))
+            self.expert_share_layers.append(layers.Dense(self.units, activation=self.expert_activation,
+                                                   use_bias=self.use_expert_bias,
+                                                   kernel_initializer=self.expert_kernel_initializer,
+                                                   bias_initializer=self.expert_bias_initializer,
+                                                   kernel_regularizer=self.expert_kernel_regularizer,
+                                                   bias_regularizer=self.expert_bias_regularizer,
+                                                   activity_regularizer=None,
+                                                   kernel_constraint=self.expert_kernel_constraint,
+                                                   bias_constraint=self.expert_bias_constraint))
         # task gate part
         for i in range(self.num_tasks):
-            self.gate_layers.append(MLP(self.num_per_experts+self.num_experts_share,self.gate_units,activation=self.gate_activation))
+            self.gate_layers.append(layers.Dense(self.num_per_experts+self.num_experts_share, activation=self.gate_activation,
+                                                 use_bias=self.use_gate_bias,
+                                                 kernel_initializer=self.gate_kernel_initializer,
+                                                 bias_initializer=self.gate_bias_initializer,
+                                                 kernel_regularizer=self.gate_kernel_regularizer,
+                                                 bias_regularizer=self.gate_bias_regularizer, activity_regularizer=None,
+                                                 kernel_constraint=self.gate_kernel_constraint,
+                                                 bias_constraint=self.gate_bias_constraint))
         # task gate part
         if not if_last:
-            self.gate_share_layers.append(MLP(self.num_tasks*self.num_per_experts+self.num_experts_share,self.gate_units,activation=self.gate_activation))
+            self.gate_share_layers.append(layers.Dense(self.num_tasks*self.num_per_experts+self.num_experts_share, activation=self.gate_activation,
+                                                 use_bias=self.use_gate_bias,
+                                                 kernel_initializer=self.gate_kernel_initializer,
+                                                 bias_initializer=self.gate_bias_initializer,
+                                                 kernel_regularizer=self.gate_kernel_regularizer,
+                                                 bias_regularizer=self.gate_bias_regularizer, activity_regularizer=None,
+                                                 kernel_constraint=self.gate_kernel_constraint,
+                                                 bias_constraint=self.gate_bias_constraint))
 
     def call(self, inputs):
         """
@@ -182,7 +262,7 @@ class SinglePLELayer(layers.Layer):
             cur_expert = cur_expert + expert_outputs[i*self.num_per_experts:(i+1)*self.num_per_experts]
             cur_expert = cur_expert + expert_share_outputs
             cur_expert = tf.concat(cur_expert,2)
-            weighted_expert_output = cur_expert * repeat_elements(expanded_gate_output, self.expert_units[-1], axis=1)
+            weighted_expert_output = cur_expert * repeat_elements(expanded_gate_output, self.units, axis=1)
             final_outputs.append(sum(weighted_expert_output, axis=2))
 
         if not self.if_last:
@@ -194,7 +274,7 @@ class SinglePLELayer(layers.Layer):
             cur_expert = cur_expert + expert_outputs
             cur_expert = cur_expert + expert_share_outputs
             cur_expert = tf.concat(cur_expert,2)
-            weighted_expert_output = cur_expert * repeat_elements(expanded_gate_output, self.expert_units[-1], axis=1)
+            weighted_expert_output = cur_expert * repeat_elements(expanded_gate_output, self.units, axis=1)
             final_outputs.append(sum(weighted_expert_output, axis=2))
         # 返回的矩阵维度 num_tasks * batch * units
         return final_outputs
