@@ -177,7 +177,7 @@ class Options(object):
                 'worker': ['%s:%d' % (IP_ADDRS[w], PORTS[w]) for w in range(NUM_WORKERS)]
             },
             'task': {'type': 'worker', 'index': 0}
-        }
+        })
 
     def init_distribute(self):
         self.task_index = FLAGS.task_index
