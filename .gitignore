@@ -1,0 +1,9 @@
+**/*checkpoint*
+**/*.pyc
+**/*.tar.xz
+**/*.tar.gz
+**/*.tar
+**/*.csv
+**/*.tf
+**/*.pbtxt
+**/model.ckpt*
