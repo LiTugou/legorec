@@ -1,0 +1,402 @@
+{
+  "appid": {
+    "default_value": "default_value",
+    "type": "string",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field1",
+    "hash_bucket": 510
+  },
+  "viptypes": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field2",
+    "hash_bucket": 4
+  },
+  "asrgender": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field3",
+    "hash_bucket": 4
+  },
+  "position": {
+    "default_value": "default_value",
+    "type": "string",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field4",
+    "hash_bucket": 5010
+  },
+  "category": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field5",
+    "hash_bucket": 10
+  },
+  "respaytype": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field6",
+    "hash_bucket": 3
+  },
+  "selfFlag": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field7",
+    "hash_bucket": 2
+  },
+  "paytypematchflag": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field8",
+    "hash_bucket": 2
+  },
+  "viptypeduetime": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field9",
+    "hash_bucket": 13
+  },
+  "usedaygap": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field10",
+    "hash_bucket": 15
+  },
+  "login": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field11",
+    "hash_bucket": 2
+  },
+  "viptypeuserpaycnt": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field12",
+    "hash_bucket": 6
+  },
+  "categoryusercnt": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field14",
+    "hash_bucket": 19
+  },
+  "normslotmatchscore": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field24",
+    "hash_bucket": 29
+  },
+  "trunkmatchscore": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field25",
+    "hash_bucket": 40
+  },
+  "normtrunkmatchscore": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field26",
+    "hash_bucket": 31
+  },
+  "maxvipctr": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field27",
+    "hash_bucket": 38
+  },
+  "maxallctr": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field28",
+    "hash_bucket": 46
+  },
+  "metarating": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field29",
+    "hash_bucket": 45
+  },
+  "doubanrating": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field30",
+    "hash_bucket": 23
+  },
+  "metaclickscore": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field31",
+    "hash_bucket": 43
+  },
+  "metaclickratio": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field32",
+    "hash_bucket": 50
+  },
+  "metaplayratio": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field33",
+    "hash_bucket": 50
+  },
+  "metaplaylength": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field34",
+    "hash_bucket": 49
+  },
+  "realtimescore": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field35",
+    "hash_bucket": 43
+  },
+  "relativerealtime": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field36",
+    "hash_bucket": 40
+  },
+  "popularityscore": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field37",
+    "hash_bucket": 50
+  },
+  "queryvideopvcgmatchscore": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field38",
+    "hash_bucket": 45
+  },
+  "viptypeuserpayfee": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field39",
+    "hash_bucket": 35
+  },
+  "respaycount": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field40",
+    "hash_bucket": 35
+  },
+  "queryCtrConfidenceScore": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field41",
+    "hash_bucket": 27
+  },
+  "slotCtrConfidenceScore": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field42",
+    "hash_bucket": 39
+  },
+  "slotQueryCtrSum": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field43",
+    "hash_bucket": 33
+  },
+  "rawQueryCtrSum": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field44",
+    "hash_bucket": 43
+  },
+  "maxAllSlotQueryCtr": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field45",
+    "hash_bucket": 39
+  },
+  "maxAllRawQueryCtr": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field46",
+    "hash_bucket": 27
+  },
+  "playdurationsum": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field47",
+    "hash_bucket": 43
+  },
+  "payplaydurationsum": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field48",
+    "hash_bucket": 42
+  },
+  "payfeesum": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field49",
+    "hash_bucket": 39
+  },
+  "payfeeavg": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field50",
+    "hash_bucket": 38
+  },
+  "ipresusercnt": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field13",
+    "hash_bucket": 12
+  },
+  "cpusercnt": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field15",
+    "hash_bucket": 14
+  },
+  "requestcnt": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field16",
+    "hash_bucket": 15
+  },
+  "clickcnt": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field17",
+    "hash_bucket": 15
+  },
+  "playcnt": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field18",
+    "hash_bucket": 15
+  },
+  "payclickcnt": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field19",
+    "hash_bucket": 15
+  },
+  "payplaycnt": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field20",
+    "hash_bucket": 15
+  },
+  "payfeecnt": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field21",
+    "hash_bucket": 12
+  },
+  "paysinglecnt": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field22",
+    "hash_bucket": 7
+  },
+  "payvipcnt": {
+    "default_value": 0,
+    "type": "bucketid",
+    "embedding_dim": 16,
+    "field": "other",
+    "field_name": "field23",
+    "hash_bucket": 9
+  }
+}
