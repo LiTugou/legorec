@@ -12,13 +12,14 @@ class PPGate(layers.Layer):
                  activation="ReLU",
                  dropout_rate=0.0,
                  batch_norm=False,
-                 scope=None
+                 scope=None,
+                 **kwargs
                 ):
         """
         hidden_dim ppgate的隐藏层(一般1层完事)
         output_dim 应该等于feature_emb field*field_emb
         """
-        super(PPGate, self).__init__()
+        super(PPGate, self).__init__(**kwargs)
         
         gatelayer=tf.keras.Sequential()
         for pid, pp_unit in enumerate(hidden_dim):
@@ -28,7 +29,7 @@ class PPGate(layers.Layer):
                 name=f'pp_gate_{pid}'
             gate=layers.Dense(pp_unit,activation=tf.nn.relu,name=name)
             if batch_norm:
-                bn=layers.BatchNormalization()
+                bn=layers.BatchNormalization(**kwargs)
                 gatelayer.add(bn)
             gatelayer.add(gate)
         if scope is not None:
@@ -57,7 +58,9 @@ class PPNetBlock(layers.Layer):
                  activation="ReLU",
                  dropout_rates=0.0,
                  batch_norm=False,
-                 use_bias=True):
+                 use_bias=True,
+                 **kwargs
+                ):
         """
         input_dim： 是feature_emb的维度,第一个gate的输出形状
         output_dim： mlp的输出
@@ -66,7 +69,7 @@ class PPNetBlock(layers.Layer):
         
         每一个dense层的输出都会过一个gate
         """
-        super(PPNetBlock, self).__init__()
+        super(PPNetBlock, self).__init__(**kwargs)
 #         if not isinstance(dropout_rates, list):
 #             dropout_rates = [dropout_rates] * len(hidden_units)
 
