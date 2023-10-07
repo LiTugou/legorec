@@ -1,18 +1,18 @@
 #coding:utf-8
 import tensorflow as tf
-from tensorflow import tensordot, expand_dims
-from tensorflow.keras import layers, Model, initializers, regularizers, activations, constraints, Input
-
-
+from tensorflow.keras import layers,initializers, regularizers, activations, constraints
 from tensorflow.keras.backend import expand_dims,repeat_elements,sum
+
+from ..base import MLP
 
 class PLELayer(layers.Layer):
 
     def __init__(self,
-                 units,
                  num_per_experts,
                  num_experts_share,
+                 expert_units,
                  num_tasks,
+                 gate_units,
                  level_number,
                  use_expert_bias=True,
                  use_gate_bias=True,
@@ -33,38 +33,20 @@ class PLELayer(layers.Layer):
                  activity_regularizer=None,
                  **kwargs):
         """
-         Method for instantiating MMoE layer.
-        :param units: Number of hidden units
-        :param num_per_experts: Number of experts for per task
-        :param num_experts_share: Number of share experts
+        :param expert_units: Number of expert net hidden units
+        :param num_experts: Number of experts
         :param num_tasks: Number of tasks
+        :param gate_units: Number of gate net hidden units
         :param level_number: Number of PLELayer
-        :param use_expert_bias: Boolean to indicate the usage of bias in the expert weights
-        :param use_gate_bias: Boolean to indicate the usage of bias in the gate weights
-        :param expert_activation: Activation function of the expert weights
-        :param gate_activation: Activation function of the gate weights
-        :param expert_bias_initializer: Initializer for the expert bias
-        :param gate_bias_initializer: Initializer for the gate bias
-        :param expert_bias_regularizer: Regularizer for the expert bias
-        :param gate_bias_regularizer: Regularizer for the gate bias
-        :param expert_bias_constraint: Constraint for the expert bias
-        :param gate_bias_constraint: Constraint for the gate bias
-        :param expert_kernel_initializer: Initializer for the expert weights
-        :param gate_kernel_initializer: Initializer for the gate weights
-        :param expert_kernel_regularizer: Regularizer for the expert weights
-        :param gate_kernel_regularizer: Regularizer for the gate weights
-        :param expert_kernel_constraint: Constraint for the expert weights
-        :param gate_kernel_constraint: Constraint for the gate weights
-        :param activity_regularizer: Regularizer for the activity
-        :param kwargs: Additional keyword arguments for the Layer class
         """
         super(PLELayer, self).__init__(**kwargs)
 
         # Hidden nodes parameter
-        self.units = units
+        self.expert_units = expert_units
         self.num_per_experts = num_per_experts
         self.num_experts_share = num_experts_share
         self.num_tasks = num_tasks
+        self.gate_units=gate_units
         self.level_number = level_number
 
         # ple layer
@@ -72,12 +54,12 @@ class PLELayer(layers.Layer):
         for i in range(0, self.level_number):
             if i == self.level_number - 1:
                 ple_layer = SinglePLELayer(
-                    units, num_per_experts, num_experts_share, num_tasks, True)
+                    num_per_experts, num_experts_share,expert_units, num_tasks,gate_units, True)
                 self.ple_layers.append(ple_layer)
                 break
             else:
                 ple_layer = SinglePLELayer(
-                    units, num_per_experts, num_experts_share, num_tasks, False)
+                    num_per_experts, num_experts_share,expert_units, num_tasks,gate_units, False)
                 self.ple_layers.append(ple_layer)
     
     def call(self, inputs):
@@ -94,15 +76,12 @@ class PLELayer(layers.Layer):
         return ple_out
 
 class SinglePLELayer(layers.Layer):
-    """
-    SinglePLELayer Multi-gate Mixture-of-Experts model.
-    """
-
     def __init__(self,
-                 units,
                  num_per_experts,
                  num_experts_share,
+                 expert_units,
                  num_tasks,
+                 gate_units,
                  if_last,
                  use_expert_bias=True,
                  use_gate_bias=True,
@@ -123,35 +102,17 @@ class SinglePLELayer(layers.Layer):
                  activity_regularizer=None,
                  **kwargs):
         """
-         Method for instantiating MMoE layer.
-        :param units: Number of hidden units
-        :param num_per_experts: Number of experts for per task
-        :param num_experts_share: Number of share experts
+        :param expert_units: Number of expert net hidden units
+        :param num_experts: Number of experts
         :param num_tasks: Number of tasks
+        :param gate_units: Number of gate net hidden units
         :param if_last: is or not last of SinglePLELayer
-        :param use_expert_bias: Boolean to indicate the usage of bias in the expert weights
-        :param use_gate_bias: Boolean to indicate the usage of bias in the gate weights
-        :param expert_activation: Activation function of the expert weights
-        :param gate_activation: Activation function of the gate weights
-        :param expert_bias_initializer: Initializer for the expert bias
-        :param gate_bias_initializer: Initializer for the gate bias
-        :param expert_bias_regularizer: Regularizer for the expert bias
-        :param gate_bias_regularizer: Regularizer for the gate bias
-        :param expert_bias_constraint: Constraint for the expert bias
-        :param gate_bias_constraint: Constraint for the gate bias
-        :param expert_kernel_initializer: Initializer for the expert weights
-        :param gate_kernel_initializer: Initializer for the gate weights
-        :param expert_kernel_regularizer: Regularizer for the expert weights
-        :param gate_kernel_regularizer: Regularizer for the gate weights
-        :param expert_kernel_constraint: Constraint for the expert weights
-        :param gate_kernel_constraint: Constraint for the gate weights
-        :param activity_regularizer: Regularizer for the activity
-        :param kwargs: Additional keyword arguments for the Layer class
         """
         super(SinglePLELayer, self).__init__(**kwargs)
 
         # Hidden nodes parameter
-        self.units = units
+        self.expert_units = expert_units
+        self.gate_units=gate_units
         self.num_per_experts = num_per_experts
         self.num_experts_share = num_experts_share
         self.num_tasks = num_tasks
@@ -194,7 +155,8 @@ class SinglePLELayer(layers.Layer):
         # task-specific expert part
         for i in range(0, self.num_tasks):
             for j in range(self.num_per_experts):
-                self.expert_layers.append(layers.Dense(self.units, activation=self.expert_activation,
+                self.expert_layers.append(MLP(out_dim=self.expert_units[-1],hidden_units=self.expert_units[:-1],
+                                                   activation=self.expert_activation,
                                                    use_bias=self.use_expert_bias,
                                                    kernel_initializer=self.expert_kernel_initializer,
                                                    bias_initializer=self.expert_bias_initializer,
@@ -205,7 +167,8 @@ class SinglePLELayer(layers.Layer):
                                                    bias_constraint=self.expert_bias_constraint))
         # task-specific expert part
         for i in range(self.num_experts_share):
-            self.expert_share_layers.append(layers.Dense(self.units, activation=self.expert_activation,
+            self.expert_share_layers.append(MLP(out_dim=self.expert_units[-1],hidden_units=self.expert_units[:-1],
+                                                   activation=self.expert_activation,
                                                    use_bias=self.use_expert_bias,
                                                    kernel_initializer=self.expert_kernel_initializer,
                                                    bias_initializer=self.expert_bias_initializer,
@@ -216,7 +179,8 @@ class SinglePLELayer(layers.Layer):
                                                    bias_constraint=self.expert_bias_constraint))
         # task gate part
         for i in range(self.num_tasks):
-            self.gate_layers.append(layers.Dense(self.num_per_experts+self.num_experts_share, activation=self.gate_activation,
+            self.gate_layers.append(MLP(out_dim=self.num_per_experts+self.num_experts_share,hidden_units=self.gate_units, 
+                                                 activation=self.gate_activation,
                                                  use_bias=self.use_gate_bias,
                                                  kernel_initializer=self.gate_kernel_initializer,
                                                  bias_initializer=self.gate_bias_initializer,
@@ -226,7 +190,8 @@ class SinglePLELayer(layers.Layer):
                                                  bias_constraint=self.gate_bias_constraint))
         # task gate part
         if not if_last:
-            self.gate_share_layers.append(layers.Dense(self.num_tasks*self.num_per_experts+self.num_experts_share, activation=self.gate_activation,
+            self.gate_share_layers.append(MLP(out_dim=self.num_tasks*self.num_per_experts+self.num_experts_share,hidden_units=self.gate_units, 
+                                                 activation=self.gate_activation,
                                                  use_bias=self.use_gate_bias,
                                                  kernel_initializer=self.gate_kernel_initializer,
                                                  bias_initializer=self.gate_bias_initializer,
@@ -237,10 +202,8 @@ class SinglePLELayer(layers.Layer):
 
     def call(self, inputs):
         """
-        Method for the forward function of the layer.
-        :param inputs: Input tensor
-        :param kwargs: Additional keyword arguments for the base method
-        :return: A tensor
+        inputs: (bs,field_num*emb_size)
+        ouput: list: num_task *(bs,field_num*emb_size)
         """
         #assert input_shape is not None and len(input_shape) >= 2
 
@@ -262,7 +225,7 @@ class SinglePLELayer(layers.Layer):
             cur_expert = cur_expert + expert_outputs[i*self.num_per_experts:(i+1)*self.num_per_experts]
             cur_expert = cur_expert + expert_share_outputs
             cur_expert = tf.concat(cur_expert,2)
-            weighted_expert_output = cur_expert * repeat_elements(expanded_gate_output, self.units, axis=1)
+            weighted_expert_output = cur_expert * repeat_elements(expanded_gate_output, self.expert_units[-1], axis=1)
             final_outputs.append(sum(weighted_expert_output, axis=2))
 
         if not self.if_last:
@@ -274,7 +237,7 @@ class SinglePLELayer(layers.Layer):
             cur_expert = cur_expert + expert_outputs
             cur_expert = cur_expert + expert_share_outputs
             cur_expert = tf.concat(cur_expert,2)
-            weighted_expert_output = cur_expert * repeat_elements(expanded_gate_output, self.units, axis=1)
+            weighted_expert_output = cur_expert * repeat_elements(expanded_gate_output, self.expert_units[-1], axis=1)
             final_outputs.append(sum(weighted_expert_output, axis=2))
         # 返回的矩阵维度 num_tasks * batch * units
         return final_outputs

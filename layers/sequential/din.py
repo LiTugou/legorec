@@ -2,7 +2,8 @@ import tensorflow as tf
 from tensorflow import tensordot, expand_dims
 from tensorflow.keras import layers,initializers, regularizers, activations, constraints
 
-from layers.base import Dice,MLP
+from ..activation.dice import Dice
+from ..base import MLP
 
 # mini-batch aware regularization 还未实现
 # https://github.com/zhougr1993/DeepInterestNetwork/issues/82
