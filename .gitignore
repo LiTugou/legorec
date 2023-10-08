@@ -7,3 +7,5 @@
 **/*.tf
 **/*.pbtxt
 **/model.ckpt*
+**/*.txt
+**/events*

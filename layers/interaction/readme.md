@@ -9,14 +9,21 @@
   - [ ] fibinet++,senet++
   - [ ] 不同emb_dim (使用interaction模式vi@w -> (bs,1,emb_j),然后就可以了)
 - [ ] PNN
-- [ ] FNN
-- [ ] NFM
+- [x] NFM
 
 ## 特征交叉
 
 ### FMCrossLayer (deepfm)
 就那样
-
+### NFM
+FM二阶交互是内积
+NFM使用点乘,得到F*(F-1)个维度(emb_size,)向量，然后F*(F-1)个sum -> (emb_size,)
+$$
+\begin{aligned}
+f_{bi}&=\sum_{i,j}x_{i}v_{i} \odot v_{j}x_{j} \\
+&=\frac{1}{2}[(\sum_ix_iv_i)^2-\sum_i(x_iv_i)^2]
+\end{aligned}
+$$
 ### AutoIntLayer (autoint)
 
 用attention做交叉
