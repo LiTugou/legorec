@@ -6,13 +6,13 @@
 - [x] cin/xdeepfm
 - [x] autoint
 - [x] AFM
-- [ ] fibinet
+- [x] fibinet
   - [x] base
   - [ ] fibinet++,senet++
   - [ ] 不同emb_dim (使用interaction模式vi@w -> (bs,1,emb_j),然后就可以了)
 - [ ] PNN
 - [ ] FNN
-- [ ] NFM
+- [x] NFM
 
 #### MultiTarget
 - [x] ESMM (esay)
@@ -21,7 +21,7 @@
 
 #### Sequential
 - [x] Din
-- [ ] Dien
+- [x] Dien
 - [ ] DSIN
 - [x] BST
 - [ ] MIMN

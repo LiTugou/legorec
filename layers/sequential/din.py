@@ -2,32 +2,9 @@ import tensorflow as tf
 from tensorflow import tensordot, expand_dims
 from tensorflow.keras import layers,initializers, regularizers, activations, constraints
 
-from ..activation.dice import Dice
+from .base import DiceMLP
 from ..base import MLP
 
-# mini-batch aware regularization 还未实现
-# https://github.com/zhougr1993/DeepInterestNetwork/issues/82
-class DiceMLP(layers.Layer):
-    def __init__(self,out_dim,hidden_units,dropout_rate=0,activation=None,**kwargs):
-        super(DiceMLP,self).__init__(**kwargs)
-        dense_layers=[]
-        ac_layers=[]
-        for unit in hidden_units:
-            dense=layers.Dense(unit)
-            ac=Dice()
-            dense_layers.append(dense)
-            ac_layers.append(ac)
-            if dropout_rate>1e-8:
-                ac_layers.append(layers.Dropout(rate=dropout_rate))
-        self.outlayer=layers.Dense(out_dim,activation=activation)
-        self.dense_layers=dense_layers
-        self.ac_layers=ac_layers
-        
-    def call(self,inputs):
-        for i in range(len(self.dense_layers)):
-            inputs=self.dense_layers[i](inputs)
-            inputs=self.ac_layers[i](inputs)
-        return self.outlayer(inputs)
 
 class DinAttention(layers.Layer):
     def __init__(self,activation="dice",**kwargs):

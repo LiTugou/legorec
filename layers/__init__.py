@@ -9,6 +9,8 @@ from .interaction.fibinet import BilinearInteraction
 from .interaction.nfm import BiInteraction
 from .interaction.afm import AFMLayer
 from .sequential.din import DinAttention
+from .sequential.dien import DienLayer
+
 
 from .other.senet import SELayer
 from .other.ppnet import PPNetLayer
