@@ -8,7 +8,7 @@ from ..base import MLP
 # mini-batch aware regularization 还未实现
 # https://github.com/zhougr1993/DeepInterestNetwork/issues/82
 class DiceMLP(layers.Layer):
-    def __init__(self,out_dim,hidden_units,activation=None,**kwargs):
+    def __init__(self,out_dim,hidden_units,dropout_rate=0,activation=None,**kwargs):
         super(DiceMLP,self).__init__(**kwargs)
         dense_layers=[]
         ac_layers=[]
@@ -17,6 +17,8 @@ class DiceMLP(layers.Layer):
             ac=Dice()
             dense_layers.append(dense)
             ac_layers.append(ac)
+            if dropout_rate>1e-8:
+                ac_layers.append(layers.Dropout(rate=dropout_rate))
         self.outlayer=layers.Dense(out_dim,activation=activation)
         self.dense_layers=dense_layers
         self.ac_layers=ac_layers
@@ -48,11 +50,7 @@ class DinAttention(layers.Layer):
         # outputs = outputs / (emb_dim ** 0.5)
         # # Activation
         # outputs = tf.nn.softmax(outputs)  # [B, 1, T]
-        ## 用softmax的话这样
-        # # Scale
-        # outputs = outputs / (keys.get_shape().as_list()[-1] ** 0.5)
-        # # Activation
-        # outputs = tf.nn.softmax(outputs)  # [B, 1, T]
+
         ## 隐藏层默认relu,activation是最后一层的
         if self.activation.lower()=="dice":
             # hidden_activation = dice
@@ -64,11 +62,12 @@ class DinAttention(layers.Layer):
         # self.fc2=layers.Dense(self.emb_dim,activation="relu")
         # self.out=layers.Dense(self.emb_dim,activation="sigmoid")
     
-    def call(self,key,query,seqlen):
+    def call(self,sequence,query,seqlen):
         """
         构造数据的时候把行为长度也加为一列
         或直接存mask
         """
+        key=sequence
         query=tf.tile(query,[1,self.maxseqlen]) ## (bs,emb_dim) -> (bs,emb_dim*seqlen)
         query=tf.reshape(query,[-1,self.maxseqlen,self.emb_dim]) # (bs,emb_dim*seqlen) -> (bs,seqlen,emb_dim)
         ## key 和 query的一些交互,如果有其它特征other_emb 可以一并拼接

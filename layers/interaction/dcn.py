@@ -1,6 +1,6 @@
 import tensorflow.compat.v2 as tf
 
-from tensorflow.keras import activations,backend,constraints,initializers,regularizers
+from tensorflow.keras import layers,activations,backend,constraints,initializers,regularizers
 
 class CrossLayer(layers.Layer):
     def __init__(
