@@ -53,6 +53,8 @@
 #### [Sequential](./layers/sequential)
 - [x] Din
 - [x] Dien
+  - [x] 抽取和演化层
+  - [ ] Auxiliary Loss
 - [ ] DSIN
 - [x] BST
 - [ ] MIMN
