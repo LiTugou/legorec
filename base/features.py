@@ -25,6 +25,9 @@ feat_type_map={
     'timetobucket':tf.int64,
     'stringlist':tf.string,
     'stringtolist':tf.string,
+    'stringlist_ragged':tf.string,
+    'bucketidlist':tf.int64
+    'bucketidlist_ragged':tf.int64
 }
 
 default_map={
@@ -85,6 +88,36 @@ def hash_embedding(key_name, hash_bucket, dim):
         cate_feature,
         dimension=dim,
         combiner='mean', initializer=tf.truncated_normal_initializer(stddev=0.1)
+    )
+    return emb_col
+
+
+## 不接受ragged tensor,可以通过 .to_tensor(-1,shape=(...)) cut 和 pad
+## 然后使用 tf.keras.experimental.SequenceFeatures([emb1,emb2])(features)
+## tf.keras.experimental.SequenceFeatures 会将emb1,emb2在emb维度拼接
+## 输出两个向量 embedding,seqlen
+## 通过 tf.sequence_mask(seqlen) 就可以生成 mask了
+## 对于 int -1, string “” 不会 embedding
+
+def sequence_index_embedding(key_name,hash_bucket,dim):
+    cate_feature = feature_column.feature_column.sequence_categorical_column_with_identity(key_name,
+                                                                      hash_bucket,
+                                                                      dtype=tf.string)
+    emb_col = feature_column.embedding_column(
+        cate_feature,
+        dimension=dim,
+        initializer=tf.truncated_normal_initializer(stddev=0.1)
+    )
+    return emb_col
+    
+def sequence_hash_embedding(key_name,hash_bucket,dim):
+    cate_feature = feature_column.feature_column.sequence_categorical_column_with_hash_bucket(key_name,
+                                                                      hash_bucket,
+                                                                      dtype=tf.string)
+    emb_col = feature_column.embedding_column(
+        cate_feature,
+        dimension=dim,
+        initializer=tf.truncated_normal_initializer(stddev=0.1)
     )
     return emb_col
 

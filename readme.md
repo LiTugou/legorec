@@ -45,3 +45,5 @@
   - [ ] GradNorm
   - [ ] Dynamic Weight Average
   - [ ] Pareto-Eficient
+- [ ] ragged sequence input
+- [ ] uniform csv dataset loader
