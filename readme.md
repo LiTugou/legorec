@@ -28,7 +28,8 @@
 ## ToDO
 - [ ] 通用csv读取成dataset函数 (90%)
 - [ ] 上传一个example
-
+- [ ] embedding_columns,加载预训练embedding（写了的，不知道去哪了）
+- [ ] 迁移embedding_columns到layers.Embedding（不一定）
 ### Rank
 #### [interaction](./layers/interaction)
 - [x] fm/deepfm
