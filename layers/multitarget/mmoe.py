@@ -7,8 +7,8 @@ from ..base import MLP
 class MMoELayer(layers.Layer):
     """
     Multi-gate Mixture-of-Experts model.
-    expert_units 专家网络MLP结构expert_units[-1]为output
-    gate_units ， gate_units是隐藏层，num_expert是output
+    expert_units 专家网络MLP结构，expert_units[:-1]是隐藏层，expert_units[-1]为output
+    gate_units ， gate_units是gate的隐藏层，num_expert是output
     有多少 task 就有几个 gate
     """
     def __init__(self,
@@ -105,20 +105,32 @@ class MMoELayer(layers.Layer):
     def call(self, inputs):
         """
         inputs: (bs,field_num*emb_size)
-        ouput: list: num_task *(bs,field_num*emb_size)
+        ouput: list: num_task *(bs,expert_units[-1])
         """
         expert_outputs, gate_outputs, final_outputs = [], [], []
         for expert_layer in self.expert_layers:
-            expert_output = expand_dims(expert_layer(inputs), axis=2)
+            expert_output = expand_dims(expert_layer(inputs), axis=2) # [batch,expert_units[-1],1]
             expert_outputs.append(expert_output)
-        expert_outputs = tf.concat(expert_outputs,2)
+        expert_outputs = tf.concat(expert_outputs,2) # [batch,expert_units[-1],num_experts]
         
         for gate_layer in self.gate_layers:
             gate_outputs.append(gate_layer(inputs))
 
         for gate_output in gate_outputs:
-            expanded_gate_output = expand_dims(gate_output, axis=1)
+            expanded_gate_output = expand_dims(gate_output, axis=1) # [batch,1,num_experts]
+            ## repeat_elements -> [batch,expert_units[-1],num_experts]
             weighted_expert_output = expert_outputs * repeat_elements(expanded_gate_output, self.expert_units[-1], axis=1)
+            ## sum [batch,expert_units[-1],num_experts]-> [batch,expert_units[-1]]
             final_outputs.append(sum(weighted_expert_output, axis=2))
-        # 返回的矩阵维度 num_tasks * [ batch * units ]
+        # 返回的矩阵维度 num_tasks * [ batch * expert_units[-1] ]
         return final_outputs
+
+if __name__ == "__main__":
+    model=MMoELayer(
+            num_experts=4,
+            expert_units=[256],
+            num_tasks=2,
+            gate_units=[128,128]
+    )
+    x=tf.ones((64,128))
+    out1,out2=model(x)
